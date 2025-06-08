@@ -1,0 +1,17 @@
+{
+  "spacetime_emergence": {
+    "summary": {
+      "n_subsystems": 50,
+      "dimension": 3,
+      "total_entanglement": 112.93278340831893,
+      "avg_entanglement": 0.0471929725901876,
+      "network_edges": 108,
+      "connectivity": 0.08816326530612245,
+      "avg_curvature": 0.009039395300379815,
+      "curvature_variance": 9.619783021503344e-05,
+      "max_distance": 9.061510185498452,
+      "min_distance": 0.28691918016107343
+    },
+    "runtime": 5.821335792541504
+  }
+}
