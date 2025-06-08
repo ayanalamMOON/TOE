@@ -48,14 +48,30 @@ sqrt_2 = np.sqrt(2)
 sqrt_pi = np.sqrt(np.pi)
 euler_gamma = 0.5772156649015329  # Euler-Mascheroni constant
 
+# Astronomical Constants
+M_sun = 1.98847e30  # Solar mass (kg)
+R_sun = 6.957e8  # Solar radius (m)
+L_sun = 3.828e26  # Solar luminosity (W)
+AU = 1.496e11  # Astronomical Unit (m)
+pc_to_m = 3.0857e16 # Parsec to meters
+
 class EGQGEMConstants:
     """Container class for EG-QGEM theoretical constants."""
 
     def __init__(self):
         # Store all constants as class attributes
         for name, value in globals().items():
-            if isinstance(value, (int, float, complex, np.number)):
+            if isinstance(value, (int, float, complex, np.number)) and not name.startswith('_'):
                 setattr(self, name, value)
+
+        # Manually add constants that might not be picked up if not numbers (e.g. from other modules if they were complex objects)
+        # For now, ensuring all locally defined numerical constants are added.
+        self.M_sun = M_sun
+        self.R_sun = R_sun
+        self.L_sun = L_sun
+        self.AU = AU
+        self.pc_to_m = pc_to_m
+
 
     def planck_units(self):
         """Return dictionary of Planck units."""
