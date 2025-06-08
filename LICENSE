@@ -1,0 +1,92 @@
+MIT License
+
+Copyright (c) 2025 EG-QGEM Research Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+
+ADDITIONAL TERMS FOR ACADEMIC AND RESEARCH USE
+
+This software is designed for scientific research in theoretical physics,
+quantum gravity, and related fields. Users are encouraged to:
+
+1. CITATION REQUIREMENT: If you use this software in academic research that
+   results in publications, please cite the EG-QGEM project appropriately:
+
+   @software{egqgem2025,
+     title={EG-QGEM: Entangled Geometrodynamics & Quantum-Gravitational Entanglement Metric},
+     author={EG-QGEM Research Team},
+     year={2025},
+     version={1.0.0},
+     url={<https://github.com/egqgem-research/EG-QGEM}>
+   }
+
+2. RESEARCH COLLABORATION: We encourage collaboration and welcome contributions
+   from the research community. Please see CONTRIBUTING.md for guidelines.
+
+3. DATA SHARING: Research results and datasets generated using this software
+   should be made available to the scientific community when possible, in
+   accordance with open science principles.
+
+4. EDUCATIONAL USE: This software may be freely used for educational purposes
+   in universities and research institutions.
+
+================================================================================
+
+DISCLAIMER FOR THEORETICAL RESEARCH
+
+This software implements theoretical models and simulations for research
+purposes in quantum gravity and related fields. The theoretical frameworks
+implemented here are:
+
+- Based on current understanding of quantum mechanics and general relativity
+- Represent novel theoretical proposals that are subject to scientific scrutiny
+- May not reflect confirmed physical reality and should be interpreted as
+  research tools for theoretical exploration
+- Results should be validated through peer review and experimental verification
+
+Users should approach results with appropriate scientific skepticism and
+follow standard practices for theoretical physics research.
+
+================================================================================
+
+THIRD-PARTY DEPENDENCIES
+
+This software may include or depend on third-party libraries and tools, each
+subject to their own license terms:
+
+- NumPy, SciPy: BSD License
+- Matplotlib: PSF License
+- SymPy: BSD License
+- Jupyter: BSD License
+- Other dependencies as listed in requirements.txt
+
+Users are responsible for complying with the license terms of all dependencies.
+
+================================================================================
+
+CONTACT INFORMATION
+
+For questions regarding licensing, research collaboration, or commercial use:
+
+EG-QGEM Research Team
+Email: <research@egqgem.org>
+Project Repository: <https://github.com/egqgem-research/EG-QGEM>
+Documentation: <https://egqgem.org/docs>
