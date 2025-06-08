@@ -1,0 +1,25 @@
+{
+  "spacetime_emergence": {
+    "summary": {
+      "n_subsystems": 50,
+      "dimension": 3,
+      "total_entanglement": 79.74786684790998,
+      "avg_entanglement": 0.033451286429492445,
+      "network_edges": 70,
+      "connectivity": 0.05714285714285714,
+      "avg_curvature": 0.00649085393628475,
+      "curvature_variance": 9.530359683095614e-05,
+      "max_distance": 8.824767268174924,
+      "min_distance": 0.2810755587667607
+    },
+    "runtime": 5.923269748687744
+  },
+  "black_hole": {
+    "runtime": 0.028858184814453125,
+    "mass_solar_masses": 10.0,
+    "schwarzschild_radius_km": 29.54126555055405
+  },
+  "experimental_predictions": {
+    "runtime": 0.0037789344787597656
+  }
+}

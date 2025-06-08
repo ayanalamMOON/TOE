@@ -13,9 +13,9 @@ from scipy.spatial.distance import pdist, squareform
 import networkx as nx
 from tqdm import tqdm
 
-from ..theory.entanglement_tensor import EntanglementTensor, EntanglementField
-from ..theory.modified_einstein import ModifiedEinsteinSolver
-from ..theory.constants import CONSTANTS
+from theory.entanglement_tensor import EntanglementTensor, EntanglementField
+from theory.modified_einstein import ModifiedEinsteinSolver
+from theory.constants import CONSTANTS
 
 class SpacetimeEmergenceSimulator:
     """

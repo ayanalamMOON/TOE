@@ -13,9 +13,9 @@ from scipy.optimize import fsolve
 import h5py
 from tqdm import tqdm
 
-from ..theory.entanglement_tensor import EntanglementTensor
-from ..theory.modified_einstein import ModifiedEinsteinSolver
-from ..theory.constants import CONSTANTS
+from theory.entanglement_tensor import EntanglementTensor
+from theory.modified_einstein import ModifiedEinsteinSolver
+from theory.constants import CONSTANTS
 
 class BlackHoleSimulator:
     """
@@ -176,7 +176,7 @@ class BlackHoleSimulator:
             'final_mass': current_mass
         }
 
-    def compute_information_scrambling(self, n_qubits=100):
+    def compute_information_scrambling(self, n_qubits=20):
         """
         Simulate information scrambling in black hole interior.
 
@@ -186,38 +186,42 @@ class BlackHoleSimulator:
         Returns:
             dict: Scrambling dynamics and out-of-time correlators
         """
+        # Use smaller dimension for faster computation
+        dim = 2**min(n_qubits, 6)  # Max 64x64 matrix for reasonable speed
+
         # Initialize random quantum state
-        psi = np.random.complex128(2**min(n_qubits, 10))  # Limit size for computation
+        psi = np.random.normal(0, 1, dim) + 1j * np.random.normal(0, 1, dim)
         psi /= np.linalg.norm(psi)
 
-        # Scrambling Hamiltonian (random matrix)
-        dim = len(psi)
-        H = np.random.normal(0, 1, (dim, dim)) + 1j * np.random.normal(0, 1, (dim, dim))
+        # Scrambling Hamiltonian (random matrix) - smaller for speed
+        H = np.random.normal(0, 0.1, (dim, dim)) + 1j * np.random.normal(0, 0.1, (dim, dim))
         H = (H + H.conj().T) / 2  # Make Hermitian
 
-        # Evolution parameters
-        times = np.linspace(0, 10, 100)  # In units of 1/J (coupling strength)
+        # Evolution parameters - fewer time points for speed
+        times = np.linspace(0, 5, 50)  # Reduced from 100 to 50 points
         scrambling_time = np.log(n_qubits)  # Expected scrambling time
 
         # Compute out-of-time-ordered correlator (OTOC)
         otoc_values = np.zeros(len(times))
         entanglement_entropy = np.zeros(len(times))
 
+        # Pre-diagonalize H for efficient matrix exponentiation
+        eigenvals, eigenvecs = np.linalg.eigh(H)
+
         for i, t in enumerate(times):
-            # Time evolution
-            U = np.exp(-1j * H * t)
+            # Efficient time evolution using diagonalized Hamiltonian
+            exp_vals = np.exp(-1j * eigenvals * t)
+            U = eigenvecs @ np.diag(exp_vals) @ eigenvecs.conj().T
             psi_t = U @ psi
 
             # Compute OTOC (simplified - would need tensor products for full calculation)
             # |⟨ψ|V†(t)W†U(t)VU(t)W|ψ⟩|²
             otoc_values[i] = np.abs(np.vdot(psi, psi_t))**2
 
-            # Entanglement entropy (simplified)
-            # Would need to trace out subsystem for proper calculation
-            rho = np.outer(psi_t, psi_t.conj())
-            eigenvals = np.real(np.linalg.eigvals(rho))
-            eigenvals = eigenvals[eigenvals > 1e-12]
-            entanglement_entropy[i] = -np.sum(eigenvals * np.log(eigenvals))
+            # Simplified entanglement entropy estimate
+            # Use overlap with initial state as proxy
+            overlap = np.abs(np.vdot(psi, psi_t))**2
+            entanglement_entropy[i] = -overlap * np.log(overlap + 1e-12) - (1-overlap) * np.log(1-overlap + 1e-12)
 
         return {
             'times': times,

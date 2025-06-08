@@ -77,8 +77,3 @@ Please read CONTRIBUTING.md for guidelines on contributing to this research proj
 ## License
 
 This project is licensed under the MIT License - see LICENSE file for details.
-
-## Contact
-
-Research Team: EG-QGEM Theoretical Physics Group
-Email: <research@eg-qgem.org>

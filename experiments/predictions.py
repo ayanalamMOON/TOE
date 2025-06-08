@@ -14,8 +14,8 @@ import astropy.units as u
 import astropy.constants as const
 from tqdm import tqdm
 
-from ..theory.constants import CONSTANTS
-from ..theory.entanglement_tensor import EntanglementTensor
+from theory.constants import CONSTANTS
+from theory.entanglement_tensor import EntanglementTensor
 
 class QuantumGravityExperiment:
     """
@@ -430,7 +430,7 @@ def generate_experimental_predictions():
 
     # 4. Decoherence experiments
     print("  Computing decoherence predictions...")
-    decoherence_exp = DecoherenceExperiment(mass=1e-18, size=1e-9)
+    decoherence_exp = DecoherenceExperiment(system_mass=1e-18, system_size=1e-9)
     coherence_data = decoherence_exp.predict_coherence_time()
 
     predictions['decoherence'] = coherence_data

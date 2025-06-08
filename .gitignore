@@ -1,0 +1,390 @@
+# EG-QGEM Repository .gitignore
+# ================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#pdm.lock
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/#use-with-ide
+.pdm.toml
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be added to the global gitignore or merged into this project gitignore.  For a PyCharm
+#  project, it is also desirable to ignore cache and logs, uncomment these lines:
+#.idea/
+
+# Scientific Computing & Research Specific
+# ========================================
+
+# Matplotlib cache
+.matplotlib/
+
+# Numpy cache
+.numpy/
+
+# Temporary numerical computation files
+*.npy
+*.npz
+temp_*.dat
+scratch_*.py
+
+# Large data files (uncomment if needed)
+# *.h5
+# *.hdf5
+# *.nc
+# *.zarr
+
+# Simulation output files (keep results/ but ignore large files)
+results/*.dat
+results/*.h5
+results/*.hdf5
+results/large_*.json
+results/temp_*
+
+# Research notes and drafts
+**/drafts/
+**/notes/
+**/scratch/
+**/*_draft.*
+**/*_temp.*
+
+# Quantum computing libraries cache
+.qiskit/
+.cirq/
+
+# Machine learning models
+*.pkl
+*.pickle
+*.joblib
+*.model
+
+# GPU computation cache
+.nvidia/
+.cuda/
+
+# VS Code specific
+# ================
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.vscode/tasks.json
+.vscode/.ropeproject
+.vscode/c_cpp_properties.json
+
+# Keep workspace configuration but ignore user-specific settings
+# .vscode/
+
+# macOS
+# =====
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+# =======
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# Linux
+# =====
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
+# EG-QGEM Project Specific
+# ========================
+
+# Ignore compiled quantum circuits
+*.qasm_compiled
+*.qpy
+
+# Ignore large simulation checkpoint files
+checkpoints/
+*.checkpoint
+
+# Ignore temporary visualization files
+viz_temp/
+*.temp.png
+*.temp.pdf
+
+# Ignore performance profiling output
+*.prof
+*.pstats
+profiling_results/
+
+# Ignore backup files from numerical solvers
+*.bak
+*.backup
+
+# Configuration files with sensitive data
+config/secrets.json
+config/api_keys.json
+
+# Log files from simulations
+simulation_logs/
+*.simulation.log
+
+# Temporary GUI state files
+gui_state.json
+window_geometry.json
+
+# Keep important result files but ignore temporary ones
+# Results directory structure is kept, but temporary files are ignored
+results/temp_*
+results/.temp_*
+results/*_working*
+
+# Documentation build files
+docs/build/
+docs/_build/
+
+# Example/demo output that shouldn't be committed
+examples/output/
+demos/output/
+
+# IDE and editor specific
+# =======================
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Vim
+*.swp
+*.swo
+.vimrc.local
+.viminfo
+
+# Research collaboration
+# ======================
+# Ignore reviewer comments and track changes
+*_reviewed.*
+*_comments.*
+*_tracked.*
+
+# Version control for research papers (if using)
+*.tex.bak
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Keep this structure in the repository
+!.gitkeep
+!results/.gitkeep
+!docs/.gitkeep

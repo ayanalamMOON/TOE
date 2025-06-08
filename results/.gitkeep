@@ -1,0 +1,7 @@
+# This file preserves the results directory structure
+# Example research outputs are stored here
+#
+# Generated files include:
+# - *.png: Visualization plots
+# - *.json: Simulation data
+# - *.txt: Research reports
