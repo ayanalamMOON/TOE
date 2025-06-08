@@ -15,9 +15,10 @@ from typing import Dict, List, Tuple, Optional, Any, Callable
 import warnings
 from dataclasses import dataclass
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import logging # Added import
+import sys # Added import for logging handler
 
 # Project imports
-import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from theory.constants import CONSTANTS
@@ -52,6 +53,22 @@ class EntanglementSignalDetector:
         """
         self.sample_rate = sample_rate
         self.detection_threshold = detection_threshold
+
+        # Initialize logger
+        self.logger = logging.getLogger(self.__class__.__name__)
+        # Basic configuration if no handlers are set for the root logger
+        # This helps ensure logs are visible during script execution if not configured elsewhere.
+        if not logging.getLogger().hasHandlers(): # Check root logger
+            # Configure this specific logger if the root isn't configured
+            # Or, if you want to ensure this logger always outputs, configure it directly
+            # For simplicity, let's ensure this logger has a handler if root doesn't.
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO) # Set level for this logger
+            self.logger.propagate = False # Avoid duplicate messages if root logger also gets configured later
+
 
         # Detection algorithm parameters
         self.frequency_range = (20.0, 1024.0)  # Hz
@@ -89,13 +106,16 @@ class EntanglementSignalDetector:
         if detection_methods is None:
             detection_methods = ['matched_filter', 'excess_power', 'coherent_waveburst', 'bayesian']
 
+        self.logger.info(f"Starting entanglement signature detection with methods: {detection_methods}")
         strain = strain_data['strain']
         time = strain_data['time']
+        self.logger.debug(f"Strain data length: {len(strain)}, Time data length: {len(time)}")
 
         all_candidates = []
 
         # Apply each detection method
         for method in detection_methods:
+            self.logger.info(f"Applying detection method: {method}")
             try:
                 if method == 'matched_filter':
                     candidates = self._matched_filter_detection(strain, time, noise_psd)
@@ -114,14 +134,18 @@ class EntanglementSignalDetector:
                     candidate.metadata['detection_method'] = method
 
                 all_candidates.extend(candidates)
+                self.logger.info(f"Method {method} found {len(candidates)} candidates. Total candidates so far: {len(all_candidates)}")
 
             except Exception as e:
-                warnings.warn(f"Error in {method} detection: {e}")
+                self.logger.error(f"Error in {method} detection: {e}", exc_info=True) # Log traceback
                 continue
 
+        self.logger.info(f"All detection methods applied. Total candidates before clustering: {len(all_candidates)}")
         # Cluster and rank candidates
         clustered_candidates = self._cluster_candidates(all_candidates)
+        self.logger.info(f"Clustered candidates. Count: {len(clustered_candidates)}")
         ranked_candidates = self._rank_candidates(clustered_candidates)
+        self.logger.info(f"Ranked candidates. Final count: {len(ranked_candidates)}")
 
         return ranked_candidates
 
@@ -130,27 +154,47 @@ class EntanglementSignalDetector:
                                 time: np.ndarray,
                                 noise_psd: Optional[np.ndarray] = None) -> List[DetectionCandidate]:
         """Matched filter detection using entanglement templates."""
+        self.logger.info("Starting matched filter detection.")
         candidates = []
 
-        # Generate template bank
+        self.logger.info("Generating entanglement templates...")
         templates = self._generate_entanglement_templates()
+        self.logger.info(f"Generated {len(templates)} templates.")
 
-        # Sliding window analysis
         window_samples = int(self.time_window * self.sample_rate)
         hop_samples = window_samples // 4
 
-        for i in range(0, len(strain) - window_samples, hop_samples):
+        if len(strain) < window_samples:
+            self.logger.warning(f"Strain length ({len(strain)}) is less than window_samples ({window_samples}). Skipping matched filter.")
+            return []
+
+        window_starts = list(range(0, len(strain) - window_samples + 1, hop_samples))
+        total_windows_to_process = len(window_starts)
+
+        self.logger.info(f"Strain length: {len(strain)}, Window samples: {window_samples}, Hop samples: {hop_samples}")
+        self.logger.info(f"Analyzing {total_windows_to_process} windows with {len(templates)} templates each (Total correlations: {total_windows_to_process * len(templates)}).")
+
+        for window_idx, i in enumerate(window_starts):
+            if window_idx % (max(1, total_windows_to_process // 10)) == 0: # Log progress roughly every 10% of windows
+                 self.logger.info(f"Processing window {window_idx + 1}/{total_windows_to_process} (start sample: {i})...")
             window_strain = strain[i:i+window_samples]
             window_time = time[i:i+window_samples]
 
             # Match against each template
-            for template_id, template in enumerate(templates):
+            for template_idx, template in enumerate(templates):
+                # self.logger.debug(f"  Window {window_idx + 1}: Matching template {template_idx+1}/{len(templates)} ({template.get('type', 'N/A')} f={template.get('frequency', 'N/A')})...")
+
                 correlation = self._compute_correlation(window_strain, template, noise_psd)
+                if not correlation.any(): # Check if correlation returned an empty array due to an issue
+                    self.logger.warning(f"  Window {window_idx + 1}: Correlation for template {template_idx+1} resulted in empty array. Skipping.")
+                    continue
+
                 snr = np.max(correlation)
 
                 if snr > self.detection_threshold:
                     max_idx = np.argmax(correlation)
                     detection_time = window_time[max_idx]
+                    self.logger.info(f"  Candidate found in window {window_idx + 1} with template {template_idx+1}: SNR={snr:.2f} at time {detection_time:.2f}s")
 
                     candidate = DetectionCandidate(
                         time=detection_time,
@@ -168,6 +212,7 @@ class EntanglementSignalDetector:
                     )
                     candidates.append(candidate)
 
+        self.logger.info("Matched filter detection finished.")
         return candidates
 
     def _excess_power_detection(self,
@@ -404,10 +449,45 @@ class EntanglementSignalDetector:
         """Compute correlation between data and template."""
         template_signal = template['signal']
 
+        # Ensure data and template_signal are numpy arrays
+        if not isinstance(data, np.ndarray):
+            self.logger.warning(f"Data input to _compute_correlation is not a numpy array, type: {type(data)}. Attempting conversion.")
+            data = np.array(data, dtype=float)
+        if not isinstance(template_signal, np.ndarray):
+            self.logger.warning(f"Template signal input to _compute_correlation is not a numpy array, type: {type(template_signal)}. Attempting conversion.")
+            template_signal = np.array(template_signal, dtype=float)
+
+        # Ensure they are 1D
+        if data.ndim != 1:
+            self.logger.warning(f"Data input is not 1D (shape: {data.shape}). Flattening.")
+            data = data.flatten()
+        if template_signal.ndim != 1:
+            self.logger.warning(f"Template signal is not 1D (shape: {template_signal.shape}). Flattening.")
+            template_signal = template_signal.flatten()
+
+        # Ensure non-empty
+        if len(data) == 0 or len(template_signal) == 0:
+            self.logger.error("Empty data or template signal in _compute_correlation. Returning empty array.")
+            return np.array([])
+
         # Ensure same length
         min_length = min(len(data), len(template_signal))
+        if min_length == 0: # Should be caught by above, but as a safeguard
+            self.logger.error("Zero min_length after attempting to get data and template. Returning empty array.")
+            return np.array([])
+
         data_truncated = data[:min_length]
         template_truncated = template_signal[:min_length]
+
+        # Check for non-finite values
+        if not np.all(np.isfinite(data_truncated)):
+            self.logger.error("Non-finite values (NaN or inf) found in data_truncated. Returning empty array.")
+            # Optionally, you could try to clean the data, e.g., np.nan_to_num(data_truncated)
+            return np.array([])
+        if not np.all(np.isfinite(template_truncated)):
+            self.logger.error("Non-finite values (NaN or inf) found in template_truncated. Returning empty array.")
+            # Optionally, np.nan_to_num(template_truncated)
+            return np.array([])
 
         if noise_psd is None:
             # Simple correlation without noise weighting
