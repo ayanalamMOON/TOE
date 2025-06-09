@@ -569,14 +569,14 @@ class EGQGEMMainWindow(QMainWindow):
         self.mass_range_min.setRange(1e-20, 1e-10)
         self.mass_range_min.setValue(1e-18)
         self.mass_range_min.setDecimals(20)
-        self.mass_range_min.setNotation(QDoubleSpinBox.ScientificNotation)
+        # Scientific notation display not available in this PyQt5 version
         layout.addRow("Min Mass (kg):", self.mass_range_min)
 
         self.mass_range_max = QDoubleSpinBox()
         self.mass_range_max.setRange(1e-15, 1e-5)
         self.mass_range_max.setValue(1e-12)
         self.mass_range_max.setDecimals(20)
-        self.mass_range_max.setNotation(QDoubleSpinBox.ScientificNotation)
+        # Scientific notation display not available in this PyQt5 version
         layout.addRow("Max Mass (kg):", self.mass_range_max)
 
         parent_layout.addWidget(self.experiment_group)
