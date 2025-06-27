@@ -18,3 +18,4 @@ ffmpeg-python>=0.2.0
 pytest>=6.2.0
 black>=21.0.0
 flake8>=3.9.0
+PyQtWebEngine>=5.15.0

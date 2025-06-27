@@ -58,19 +58,19 @@ class QuantumEntanglementSimulator:
             # Linear chain of entanglement
             for i in range(self.n_qubits - 1):
                 circuit.h(qr[i])
-                circuit.cnot(qr[i], qr[i + 1])
+                circuit.cx(qr[i], qr[i + 1])
 
         elif entanglement_pattern == 'all_to_all':
             # All-to-all entanglement
             circuit.h(qr[0])
             for i in range(1, self.n_qubits):
-                circuit.cnot(qr[0], qr[i])
+                circuit.cx(qr[0], qr[i])
 
         elif entanglement_pattern == 'ring':
             # Ring topology
             for i in range(self.n_qubits):
                 circuit.h(qr[i])
-                circuit.cnot(qr[i], qr[(i + 1) % self.n_qubits])
+                circuit.cx(qr[i], qr[(i + 1) % self.n_qubits])
 
         elif entanglement_pattern == 'tree':
             # Binary tree structure
@@ -79,9 +79,9 @@ class QuantumEntanglementSimulator:
             while 2**level - 1 < self.n_qubits:
                 for i in range(2**(level-1) - 1, min(2**level - 1, self.n_qubits)):
                     if 2*i + 1 < self.n_qubits:
-                        circuit.cnot(qr[i], qr[2*i + 1])
+                        circuit.cx(qr[i], qr[2*i + 1])
                     if 2*i + 2 < self.n_qubits:
-                        circuit.cnot(qr[i], qr[2*i + 2])
+                        circuit.cx(qr[i], qr[2*i + 2])
                 level += 1
 
         self.circuits[f'entangled_{entanglement_pattern}'] = circuit
@@ -278,7 +278,7 @@ class QuantumEntanglementSimulator:
 
                 # Random entangling gates
                 for i in range(0, self.n_qubits - 1, 2):
-                    evolution_circuit.cnot(qr[i], qr[i + 1])
+                    evolution_circuit.cx(qr[i], qr[i + 1])
 
             elif evolution_gate == 'gravitational':
                 # Gravitational evolution (weaker, more structured)
@@ -314,14 +314,14 @@ class QuantumEntanglementSimulator:
 
             # Encode logical qubit |0⟩ or |1⟩
             circuit.h(qr[0])  # Create superposition
-            circuit.cnot(qr[0], qr[1])  # Encode
-            circuit.cnot(qr[0], qr[2])
+            circuit.cx(qr[0], qr[1])  # Encode
+            circuit.cx(qr[0], qr[2])
 
             # Error detection
-            circuit.cnot(qr[0], ar[0])
-            circuit.cnot(qr[1], ar[0])
-            circuit.cnot(qr[1], ar[1])
-            circuit.cnot(qr[2], ar[1])
+            circuit.cx(qr[0], ar[0])
+            circuit.cx(qr[1], ar[0])
+            circuit.cx(qr[1], ar[1])
+            circuit.cx(qr[2], ar[1])
 
             # Measure syndrome
             circuit.measure(ar, cr)

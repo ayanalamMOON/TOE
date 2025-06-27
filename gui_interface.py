@@ -25,10 +25,15 @@ from PyQt5.QtWidgets import (
     QTabWidget, QLabel, QPushButton, QSpinBox, QDoubleSpinBox,
     QComboBox, QTextEdit, QProgressBar, QSplitter, QGroupBox,
     QFormLayout, QCheckBox, QSlider, QFrame, QScrollArea,
-    QMessageBox, QFileDialog, QStatusBar, QMenuBar, QAction
+    QMessageBox, QFileDialog, QStatusBar, QMenuBar, QAction,
+    QGridLayout, QTableWidget, QTableWidgetItem, QDockWidget,
+    QToolBar, QButtonGroup, QRadioButton, QTreeWidget, QTreeWidgetItem,
+    QSpacerItem, QSizePolicy, QTextBrowser, QCalendarWidget,
+    QTimeEdit, QDateTimeEdit, QListWidget, QListWidgetItem,
+    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 )
-from PyQt5.QtCore import QThread, pyqtSignal, QTimer, Qt
-from PyQt5.QtGui import QFont, QPixmap, QPalette, QColor, QIcon
+from PyQt5.QtCore import QThread, pyqtSignal, QTimer, Qt, QPropertyAnimation, QEasingCurve, QRect, QDateTime
+from PyQt5.QtGui import QFont, QPixmap, QPalette, QColor, QIcon, QMovie, QPainter, QBrush, QLinearGradient
 
 # Import EG-QGEM modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

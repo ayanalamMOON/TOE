@@ -1,0 +1,21 @@
+{
+  "simulation_type": "\ud83c\udf0c Spacetime Emergence",
+  "parameters": {
+    "n_subsystems": 30,
+    "evolution_steps": 50,
+    "mass_solar": 15.0
+  },
+  "theme": "plasma",
+  "window_geometry": [
+    49,
+    12,
+    1600,
+    1000
+  ],
+  "dock_states": {
+    "control_visible": true,
+    "monitor_visible": true,
+    "analysis_visible": true
+  },
+  "timestamp": "2025-06-09T21:09:31.055296"
+}
