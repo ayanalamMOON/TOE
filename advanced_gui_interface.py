@@ -13,7 +13,8 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QVBoxLayout, QHBoxLayout
                              QPushButton, QLabel, QProgressBar, QTextEdit, QMenuBar, QToolBar,
                              QStatusBar, QDockWidget, QSizePolicy, QFrame, QSplitter, QComboBox,
                              QSpinBox, QDoubleSpinBox, QFormLayout, QFileDialog, QMessageBox, QSlider,
-                             QAction, QActionGroup, QGroupBox, QTabWidget)
+                             QAction, QActionGroup, QGroupBox, QTabWidget, QCheckBox, QListWidget,
+                             QListWidgetItem, QLineEdit)
 from PyQt5.QtCore import QThread, pyqtSignal, QTimer, Qt, QUrl
 from PyQt5.QtGui import QPalette, QColor, QFont, QIcon, QDesktopServices
 
@@ -37,6 +38,7 @@ from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d import Axes3D # Moved import to top
 import json
+import traceback
 from datetime import datetime
 from pathlib import Path
 import seaborn as sns
@@ -541,50 +543,330 @@ class SweepConfigurationWidget(QWidget):
         super().__init__(parent)
         self.main_window = main_window
         layout = QVBoxLayout(self)
-        self.label = QLabel("Sweep Configuration (Placeholder - Needs Full Implementation)")
-        self.label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.label)
-        # TODO: UI for sweep parameters
+
+        # Base simulation type selection
+        base_type_group = QGroupBox("Base Simulation Type")
+        base_type_layout = QVBoxLayout(base_type_group)
+        self.base_sim_combo = QComboBox()
+        self.base_sim_combo.addItems(["spacetime", "blackhole", "experiments"])
+        base_type_layout.addWidget(self.base_sim_combo)
+        layout.addWidget(base_type_group)
+
+        # Parameter sweep configuration
+        sweep_params_group = QGroupBox("Sweep Parameters")
+        sweep_params_layout = QFormLayout(sweep_params_group)
+
+        # For spacetime parameters
+        self.n_subsystems_min = QSpinBox()
+        self.n_subsystems_min.setRange(10, 1000)
+        self.n_subsystems_min.setValue(20)
+        self.n_subsystems_max = QSpinBox()
+        self.n_subsystems_max.setRange(10, 1000)
+        self.n_subsystems_max.setValue(100)
+        self.n_subsystems_step = QSpinBox()
+        self.n_subsystems_step.setRange(1, 100)
+        self.n_subsystems_step.setValue(20)
+
+        sweep_params_layout.addRow("N Subsystems Min:", self.n_subsystems_min)
+        sweep_params_layout.addRow("N Subsystems Max:", self.n_subsystems_max)
+        sweep_params_layout.addRow("N Subsystems Step:", self.n_subsystems_step)
+
+        # For blackhole parameters
+        self.mass_min = QDoubleSpinBox()
+        self.mass_min.setRange(0.1, 1000.0)
+        self.mass_min.setValue(1.0)
+        self.mass_max = QDoubleSpinBox()
+        self.mass_max.setRange(0.1, 1000.0)
+        self.mass_max.setValue(50.0)
+        self.mass_step = QDoubleSpinBox()
+        self.mass_step.setRange(0.1, 100.0)
+        self.mass_step.setValue(5.0)
+
+        sweep_params_layout.addRow("Mass Min (M☉):", self.mass_min)
+        sweep_params_layout.addRow("Mass Max (M☉):", self.mass_max)
+        sweep_params_layout.addRow("Mass Step (M☉):", self.mass_step)
+
+        # Evolution steps for spacetime
+        self.steps_min = QSpinBox()
+        self.steps_min.setRange(10, 10000)
+        self.steps_min.setValue(50)
+        self.steps_max = QSpinBox()
+        self.steps_max.setRange(10, 10000)
+        self.steps_max.setValue(200)
+        self.steps_step = QSpinBox()
+        self.steps_step.setRange(1, 1000)
+        self.steps_step.setValue(50)
+
+        sweep_params_layout.addRow("Evolution Steps Min:", self.steps_min)
+        sweep_params_layout.addRow("Evolution Steps Max:", self.steps_max)
+        sweep_params_layout.addRow("Evolution Steps Step:", self.steps_step)
+
+        layout.addWidget(sweep_params_group)
+
+        # Sweep execution controls
+        execution_group = QGroupBox("Sweep Execution")
+        execution_layout = QVBoxLayout(execution_group)
+
+        self.parallel_checkbox = QCheckBox("Enable Parallel Execution")
+        self.parallel_checkbox.setChecked(False)
+        execution_layout.addWidget(self.parallel_checkbox)
+
+        self.max_workers_spin = QSpinBox()
+        self.max_workers_spin.setRange(1, 16)
+        self.max_workers_spin.setValue(4)
+        execution_layout.addWidget(QLabel("Max Workers:"))
+        execution_layout.addWidget(self.max_workers_spin)
+
+        layout.addWidget(execution_group)
+
         self.setLayout(layout)
         if self.main_window:
-            self.main_window.add_log_message("SweepConfigurationWidget initialized.", "Debug")
+            self.main_window.add_log_message("SweepConfigurationWidget initialized with full UI.", "Debug")
 
     def get_sweep_parameters(self):
         if self.main_window:
-            self.main_window.add_log_message("Sweep widget using placeholder parameters.", "Debug")
-        # Placeholder implementation
+            self.main_window.add_log_message("Sweep widget generating parameters from UI configuration.", "Debug")
+
+        base_sim_type = self.base_sim_combo.currentText()
+        sweep_configs = []
+
+        if base_sim_type == 'spacetime':
+            # Generate sweep configurations for spacetime parameters
+            n_min = self.n_subsystems_min.value()
+            n_max = self.n_subsystems_max.value()
+            n_step = self.n_subsystems_step.value()
+
+            steps_min = self.steps_min.value()
+            steps_max = self.steps_max.value()
+            steps_step = self.steps_step.value()
+
+            for n_subsystems in range(n_min, n_max + 1, n_step):
+                for steps in range(steps_min, steps_max + 1, steps_step):
+                    sweep_configs.append({
+                        'n_subsystems': n_subsystems,
+                        'steps': steps,
+                        'dimension': 3
+                    })
+
+        elif base_sim_type == 'blackhole':
+            # Generate sweep configurations for blackhole parameters
+            mass_min = self.mass_min.value()
+            mass_max = self.mass_max.value()
+            mass_step = self.mass_step.value()
+
+            mass = mass_min
+            while mass <= mass_max:
+                sweep_configs.append({
+                    'mass_solar_masses': mass
+                })
+                mass += mass_step
+
+        elif base_sim_type == 'experiments':
+            # Generate sweep configurations for experimental parameters
+            experiment_types = ['LIGO Noise', 'CMB Fluctuations', 'Particle Collider Event']
+            for exp_type in experiment_types:
+                sweep_configs.append({
+                    'experiment_type': exp_type
+                })
+
         return {
-            'base_sim_type': 'spacetime',
-            'sweep_configs': [
-                {'n_subsystems': 20, 'steps': 50, 'dimension': 3, 'some_other_param': 0.1},
-                {'n_subsystems': 35, 'steps': 50, 'dimension': 3, 'some_other_param': 0.5},
-                {'n_subsystems': 50, 'steps': 50, 'dimension': 3, 'some_other_param': 1.0},
-            ]
+            'base_sim_type': base_sim_type,
+            'sweep_configs': sweep_configs,
+            'parallel_execution': self.parallel_checkbox.isChecked(),
+            'max_workers': self.max_workers_spin.value() if self.parallel_checkbox.isChecked() else 1
         }
 
 class BatchProcessingWidget(QWidget):
     def __init__(self, parent=None, main_window=None):
         super().__init__(parent)
         self.main_window = main_window
+        self.tasks = []  # Store task configurations
+
         layout = QVBoxLayout(self)
-        self.label = QLabel("Batch Processing Setup (Placeholder - Needs Full Implementation)")
-        self.label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.label)
-        # TODO: UI for batch tasks
+
+        # Task creation section
+        task_creation_group = QGroupBox("Create New Task")
+        task_creation_layout = QFormLayout(task_creation_group)
+
+        self.task_name_edit = QLineEdit()
+        self.task_name_edit.setPlaceholderText("Enter task name...")
+        task_creation_layout.addRow("Task Name:", self.task_name_edit)
+
+        self.task_type_combo = QComboBox()
+        self.task_type_combo.addItems(["spacetime", "blackhole", "experiments"])
+        task_creation_layout.addRow("Task Type:", self.task_type_combo)
+
+        # Parameters for different task types
+        self.param_n_subsystems = QSpinBox()
+        self.param_n_subsystems.setRange(10, 1000)
+        self.param_n_subsystems.setValue(50)
+        task_creation_layout.addRow("N Subsystems:", self.param_n_subsystems)
+
+        self.param_steps = QSpinBox()
+        self.param_steps.setRange(10, 10000)
+        self.param_steps.setValue(100)
+        task_creation_layout.addRow("Evolution Steps:", self.param_steps)
+
+        self.param_mass = QDoubleSpinBox()
+        self.param_mass.setRange(0.1, 1000.0)
+        self.param_mass.setValue(10.0)
+        self.param_mass.setSuffix(" M☉")
+        task_creation_layout.addRow("BH Mass:", self.param_mass)
+
+        self.param_experiment_type = QComboBox()
+        self.param_experiment_type.addItems(["LIGO Noise", "CMB Fluctuations", "Particle Collider Event"])
+        task_creation_layout.addRow("Experiment Type:", self.param_experiment_type)
+
+        # Add task button
+        self.add_task_button = QPushButton("Add Task to Batch")
+        self.add_task_button.clicked.connect(self.add_task)
+        task_creation_layout.addRow(self.add_task_button)
+
+        layout.addWidget(task_creation_group)
+
+        # Task list section
+        task_list_group = QGroupBox("Batch Task Queue")
+        task_list_layout = QVBoxLayout(task_list_group)
+
+        self.task_list = QListWidget()
+        task_list_layout.addWidget(self.task_list)
+
+        # Task management buttons
+        task_buttons_layout = QHBoxLayout()
+        self.remove_task_button = QPushButton("Remove Selected")
+        self.remove_task_button.clicked.connect(self.remove_task)
+        self.clear_tasks_button = QPushButton("Clear All")
+        self.clear_tasks_button.clicked.connect(self.clear_tasks)
+        self.move_up_button = QPushButton("Move Up")
+        self.move_up_button.clicked.connect(self.move_task_up)
+        self.move_down_button = QPushButton("Move Down")
+        self.move_down_button.clicked.connect(self.move_task_down)
+
+        task_buttons_layout.addWidget(self.remove_task_button)
+        task_buttons_layout.addWidget(self.clear_tasks_button)
+        task_buttons_layout.addWidget(self.move_up_button)
+        task_buttons_layout.addWidget(self.move_down_button)
+
+        task_list_layout.addLayout(task_buttons_layout)
+        layout.addWidget(task_list_group)
+
+        # Batch execution settings
+        batch_settings_group = QGroupBox("Batch Execution Settings")
+        batch_settings_layout = QFormLayout(batch_settings_group)
+
+        self.parallel_batch_checkbox = QCheckBox("Enable Parallel Batch Processing")
+        batch_settings_layout.addRow(self.parallel_batch_checkbox)
+
+        self.max_concurrent_tasks = QSpinBox()
+        self.max_concurrent_tasks.setRange(1, 8)
+        self.max_concurrent_tasks.setValue(2)
+        batch_settings_layout.addRow("Max Concurrent Tasks:", self.max_concurrent_tasks)
+
+        self.save_intermediate_checkbox = QCheckBox("Save Intermediate Results")
+        self.save_intermediate_checkbox.setChecked(True)
+        batch_settings_layout.addRow(self.save_intermediate_checkbox)
+
+        layout.addWidget(batch_settings_group)
+
         self.setLayout(layout)
         if self.main_window:
-            self.main_window.add_log_message("BatchProcessingWidget initialized.", "Debug")
+            self.main_window.add_log_message("BatchProcessingWidget initialized with full UI.", "Debug")
+
+    def add_task(self):
+        """Add a new task to the batch queue."""
+        task_name = self.task_name_edit.text().strip()
+        if not task_name:
+            task_name = f"Task {len(self.tasks) + 1}"
+
+        task_type = self.task_type_combo.currentText()
+
+        # Build parameters based on task type
+        parameters = {}
+        if task_type == "spacetime":
+            parameters = {
+                'n_subsystems': self.param_n_subsystems.value(),
+                'steps': self.param_steps.value(),
+                'dimension': 3
+            }
+        elif task_type == "blackhole":
+            parameters = {
+                'mass_solar_masses': self.param_mass.value()
+            }
+        elif task_type == "experiments":
+            parameters = {
+                'experiment_type': self.param_experiment_type.currentText()
+            }
+
+        task = {
+            'name': task_name,
+            'type': task_type,
+            'parameters': parameters
+        }
+
+        self.tasks.append(task)
+        self.update_task_list()
+
+        # Clear task name for next entry
+        self.task_name_edit.clear()
+
+        if self.main_window:
+            self.main_window.add_log_message(f"Added task '{task_name}' ({task_type}) to batch queue.", "Info")
+
+    def remove_task(self):
+        """Remove selected task from the batch queue."""
+        current_row = self.task_list.currentRow()
+        if 0 <= current_row < len(self.tasks):
+            removed_task = self.tasks.pop(current_row)
+            self.update_task_list()
+            if self.main_window:
+                self.main_window.add_log_message(f"Removed task '{removed_task['name']}' from batch queue.", "Info")
+
+    def clear_tasks(self):
+        """Clear all tasks from the batch queue."""
+        self.tasks.clear()
+        self.update_task_list()
+        if self.main_window:
+            self.main_window.add_log_message("Cleared all tasks from batch queue.", "Info")
+
+    def move_task_up(self):
+        """Move selected task up in the queue."""
+        current_row = self.task_list.currentRow()
+        if current_row > 0:
+            self.tasks[current_row], self.tasks[current_row - 1] = self.tasks[current_row - 1], self.tasks[current_row]
+            self.update_task_list()
+            self.task_list.setCurrentRow(current_row - 1)
+
+    def move_task_down(self):
+        """Move selected task down in the queue."""
+        current_row = self.task_list.currentRow()
+        if 0 <= current_row < len(self.tasks) - 1:
+            self.tasks[current_row], self.tasks[current_row + 1] = self.tasks[current_row + 1], self.tasks[current_row]
+            self.update_task_list()
+            self.task_list.setCurrentRow(current_row + 1)
+
+    def update_task_list(self):
+        """Update the task list display."""
+        self.task_list.clear()
+        for i, task in enumerate(self.tasks):
+            item_text = f"{i+1}. {task['name']} ({task['type']})"
+            if task['type'] == 'spacetime':
+                item_text += f" - N:{task['parameters'].get('n_subsystems', 'N/A')}, Steps:{task['parameters'].get('steps', 'N/A')}"
+            elif task['type'] == 'blackhole':
+                item_text += f" - Mass:{task['parameters'].get('mass_solar_masses', 'N/A')} M☉"
+            elif task['type'] == 'experiments':
+                item_text += f" - Type:{task['parameters'].get('experiment_type', 'N/A')}"
+
+            self.task_list.addItem(item_text)
 
     def get_batch_parameters(self):
         if self.main_window:
-            self.main_window.add_log_message("Batch widget using placeholder parameters.", "Debug")
-        # Placeholder implementation
+            self.main_window.add_log_message(f"Batch widget returning {len(self.tasks)} configured tasks.", "Debug")
+
         return {
-            'tasks': [
-                {'name': 'Batch Task Alpha', 'type': 'spacetime', 'parameters': {'n_subsystems': 25, 'steps': 40}},
-                {'name': 'Batch Task Beta', 'type': 'blackhole', 'parameters': {'mass_solar_masses': 7.5}},
-                {'name': 'Batch Task Gamma (Exp)', 'type': 'experiments', 'parameters': {'experiment_type': 'CMB_fluctuations'}},
-            ]
+            'tasks': self.tasks.copy(),  # Return a copy to avoid modification
+            'parallel_execution': self.parallel_batch_checkbox.isChecked(),
+            'max_concurrent_tasks': self.max_concurrent_tasks.value(),
+            'save_intermediate_results': self.save_intermediate_checkbox.isChecked()
         }
 
 class AnalysisToolsWidget(QWidget):
